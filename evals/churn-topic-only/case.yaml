@@ -1,0 +1,14 @@
+schema_version: "1.1"
+name: churn-topic-only
+expected_outcome: |
+  Given only a topic, the run chooses an industry on the basis of data
+  availability, frames a business problem with testable hypotheses, and really
+  downloads at least one relevant dataset into the project folder. Every
+  dataset is classified as actual, anonymized, simulated, synthetic or
+  unverified with evidence, and a fictional sample (such as the IBM telco churn
+  file) is never presented as a real company's records. Row counts and columns
+  quoted in the documents match the downloaded files. The analytics plan covers
+  descriptive, diagnostic, predictive and prescriptive analytics using the
+  dataset's actual column names, and does not plan time-trend analysis on a
+  dataset that has no date column without saying it is not possible. The
+  project ends with a feasibility verdict and concrete next steps.
