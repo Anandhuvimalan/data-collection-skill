@@ -20,6 +20,7 @@ look up later. Every fact about a dataset carries its evidence label:
 - 05_analytics_plan.md
 - 06_roadmap_and_deliverables.md
 - 07_feasibility_review.md
+- 08_how_to_do_the_analysis.md
 
 ---
 
@@ -364,3 +365,37 @@ Rate from evidence in the profile and the collection report, not optimism.
 **Verdict** - feasible, feasible with a revised scope (state it), or not
 feasible as posed (state the alternative data or topic). If data is
 insufficient, the recommendation to change scope comes before any further work.
+
+---
+
+## 08_how_to_do_the_analysis.md
+
+The project's own walkthrough of `guide/`, with nothing left to translate. A
+student should be able to follow it line by line.
+
+1. **Before you start** - tools to install, how to open the project, the
+   settings already filled in `guide/python/config.py` (list them) and any left
+   at `None` with the reason.
+2. **Week-by-week plan** - the guide's eight stages mapped to the project
+   duration.
+3. **Step-by-step**, one section per stage (setup and loading, preparation,
+   descriptive, diagnostic, predictive, prescriptive, reporting). For each:
+   - which guide file to read;
+   - the exact commands to run (or "skip, because ...");
+   - this project's specifics: the tables and columns, the KPIs with formulas,
+     the hypotheses with their tests, the model target and leakage list, the
+     decision and assumptions;
+   - the Power BI steps that apply, with the DAX measures rewritten for this
+     project's table and column names;
+   - what output to expect and how to check it (for example "the churn rate
+     should be 26.5% [FILE]").
+4. **Company × period part** - if the project has a panel table, how to build
+   it from the collected files and run `kpi_panel.py`.
+5. **Dashboard pages** - the six pages from `guide/07-reporting.md`, each with
+   the specific visuals for this project.
+6. **Report outline** - the report structure from the reporting guide, with
+   one line per section saying what this project's content is.
+7. **Where students usually go wrong on this project** - three to five
+   project-specific pitfalls (a leaky column, a misleading segment, a missing
+   date column, a definition mismatch between peers).
+

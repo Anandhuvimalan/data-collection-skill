@@ -282,6 +282,8 @@ Read `references/deliverables.md` for each file's outline and
 ├── 05_analytics_plan.md            descriptive, diagnostic, predictive, prescriptive
 ├── 06_roadmap_and_deliverables.md  step-by-step plan and deliverables checklist
 ├── 07_feasibility_review.md        scorecard, limitations, verdict
+├── 08_how_to_do_the_analysis.md    this project's step-by-step analysis walkthrough
+├── guide/                          the student analysis guide + Python scripts (copied from the skill)
 ├── schema.sql                      CREATE TABLE statements in the chosen SQL dialect
 ├── collect/                        re-runnable collection and reshaping scripts
 └── data/
@@ -303,7 +305,36 @@ rewrite it or cut it.
 Write for a student: plain words, short tables, a one-line definition the first
 time a technical term appears.
 
-### 9. Verdict and hand-over
+### 9. Hand over the analysis guide
+
+The skill ships a student handbook in its `guide/` folder: step-by-step
+descriptive, diagnostic, predictive and prescriptive analysis in Python and
+Power BI, a reporting guide, and runnable scripts in `guide/python/`
+(`01_prepare.py` to `05_prescriptive.py`, `kpi_panel.py` for company × period
+data). Give every project its own copy and fit it to the data:
+
+1. Copy the skill's `guide/` folder into `<project>/guide/` unchanged.
+2. Fill in `<project>/guide/python/config.py` with this project's real values:
+   the main record-level table in `data/processed/` and its id, outcome column,
+   positive value, date and value columns; the leakage columns you identified;
+   a control column for the confounding check; the assumptions table from the
+   prescriptive plan (with the sources noted in comments); and the `PANEL_*`
+   settings if a company × period table exists. Leave a setting at `None` rather
+   than guessing, and say so.
+3. If the project's outcome is not yes/no (a numeric target, a time series
+   only, no target at all), say in the walkthrough which scripts apply as they
+   are, which need the changes described in the guide, and which to skip.
+4. Write `08_how_to_do_the_analysis.md` following `references/deliverables.md`:
+   the guide's steps, in order, rewritten with this project's tables, columns,
+   hypotheses, KPIs, model target and decision, so a student can follow it
+   without translating anything.
+
+When Python is available in the session and the user agrees to the time it
+takes, run `01_prepare.py` and `02_descriptive.py` once as a smoke test of the
+configuration, and report any errors; do not go further, because the analysis
+is the student's work.
+
+### 10. Verdict and hand-over
 
 End `07_feasibility_review.md` with **feasible**, **feasible with a revised
 scope** (state it), or **not feasible as posed** (give the alternative). Then
@@ -313,7 +344,8 @@ send the user a short message:
 2. What was collected: each source with its class, rows `[FILE]` and period.
 3. What was not collected, and where the manual steps are.
 4. The main limitation they must disclose.
-5. What to open first and the first thing to do.
+5. What to open first (`README.md`, then `08_how_to_do_the_analysis.md` and
+   `guide/README.md`) and the first thing to do.
 
 ## Alternative approaches
 
@@ -327,9 +359,12 @@ carry the analysis.
 
 ## Scope
 
-This skill gets the project to the starting line: real data, structured, and a
-plan. Cleaning, queries, models and dashboards are the student's work, so stop at
-the plan unless the user asks you to continue. If they then want the dashboard
+This skill gets the project to the starting line: real data, structured, a
+plan, and a step-by-step guide with ready-to-configure scripts. Cleaning,
+queries, models and dashboards are the student's work, so stop there unless the
+user asks you to continue. If they ask how to do any part of the analysis,
+answer from `guide/` - it is written for students and already holds the Python
+and Power BI steps. If they then want the dashboard
 built and a Power BI building skill is available, `data/processed/`, the data
 model and the analytics plan are the hand-over.
 
@@ -347,3 +382,4 @@ offer the rest.
 | `references/provenance.md` | Before classifying any dataset: the classes, traps, disclosure wording. |
 | `references/four-analytics.md` | Before writing `05_analytics_plan.md`. |
 | `references/deliverables.md` | Before writing the project documents. |
+| `guide/README.md` and the guides it lists | Step 9, and whenever the user asks how to do the analysis, build the dashboard or write the report. Student-facing: Python and Power BI steps for all four stages, reporting, company × period data. |

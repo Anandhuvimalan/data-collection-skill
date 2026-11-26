@@ -86,6 +86,8 @@ Tools: Python, SQL Server, Power BI. 8-week internship.
 ├── 05_analytics_plan.md            descriptive, diagnostic, predictive, prescriptive
 ├── 06_roadmap_and_deliverables.md  step-by-step plan and deliverables checklist
 ├── 07_feasibility_review.md        scorecard, limitations, verdict
+├── 08_how_to_do_the_analysis.md    step-by-step walkthrough for this project
+├── guide/                          the analysis guide and ready-to-run Python scripts
 ├── schema.sql
 └── data/
     ├── raw/                        files exactly as downloaded
@@ -95,8 +97,29 @@ Tools: Python, SQL Server, Power BI. 8-week internship.
     └── profiles/                   measured row counts, columns, date ranges, keys
 ```
 
-The skill stops at the plan. Cleaning, queries, models and dashboards are the
-student's work.
+The skill stops at the plan and the guide. Cleaning, queries, models and
+dashboards are the student's work, and the guide shows how.
+
+## The analysis guide
+
+The [`guide/`](guide/README.md) folder is a student handbook that every project
+gets a copy of. It walks through the whole analysis, step by step, in **Python
+and Power BI** side by side:
+
+| Guide | Covers |
+|---|---|
+| [01 Setup and loading](guide/01-setup-and-loading.md) | tools, loading into SQL Server or PostgreSQL, the Power BI data model and date table |
+| [02 Data preparation](guide/02-data-preparation.md) | cleaning in Python and Power Query, feature engineering, joins, leakage |
+| [03 Descriptive](guide/03-descriptive.md) | KPIs, segments, trends, value at stake; DAX measures and the descriptive page |
+| [04 Diagnostic](guide/04-diagnostic.md) | hypothesis tests, effect sizes, odds ratios, confounding checks; key influencers and decomposition tree |
+| [05 Predictive](guide/05-predictive.md) | leakage, baselines, cross-validation, metrics, forecasting; scores and forecasts in Power BI |
+| [06 Prescriptive](guide/06-prescriptive.md) | decision framework, expected value, optimisation, scenarios, sensitivity, test design; what-if parameters |
+| [07 Reporting](guide/07-reporting.md) | dashboard pages and design rules, report structure, presentation, common mistakes, final checklist |
+| [08 Company × period](guide/08-company-period.md) | analysing one company and its peers year by year |
+
+`guide/python/` holds runnable scripts (`01_prepare.py` to `05_prescriptive.py`,
+`kpi_panel.py`) configured from a single `config.py`. They were tested end to end
+on a 7,043-row churn dataset and on Infosys and Wipro SEC financials.
 
 ## The rules it follows
 
