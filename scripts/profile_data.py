@@ -527,7 +527,8 @@ def main() -> int:
     everything = [p for p in everything if not any(j in p.as_posix() for j in junk) and not p.name.startswith("._")]
     docs = [(p.name if root.is_file() else p.relative_to(root).as_posix()) for p in everything
             if is_documentation(p) or (DOC_NAME_HINT.search(p.stem) and real_suffix(p) in {".txt", ".md", ".pdf", ".docx", ".html"})]
-    files = [p for p in everything if is_tabular(p) and not is_documentation(p)]
+    files = [p for p in everything if is_tabular(p) and not is_documentation(p)
+             and p.stem.lower() not in ("data_dictionary", "structure_log")]
     if not files:
         print(f"No tabular files found under {root}.", file=sys.stderr)
         return 1

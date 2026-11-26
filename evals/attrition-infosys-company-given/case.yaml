@@ -1,0 +1,4 @@
+schema_version: "1.1"
+name: attrition-infosys-company-given
+expected_outcome: |
+  The run accepts Infosys without re-asking, uses defaults for the remaining details and says so, and collects real Infosys data: financial filings (SEC 20-F facts or annual reports), the attrition rate and headcount as disclosed by the company (quarterly results, annual or BRSR reports) with page references, and the same measures for peers such as TCS or Wipro. It is honest that employee-level records are not public and, if it uses a record-level HR dataset for modelling, labels it as a proxy that is not Infosys data. SQL targets SQL Server. All four stages are planned against the collected tables, and the project ends with a feasibility verdict.

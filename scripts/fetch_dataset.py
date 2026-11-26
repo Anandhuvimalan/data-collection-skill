@@ -21,6 +21,12 @@ What to pass as the source (one or more):
     kaggle:owner/slug      public Kaggle dataset (no login needed; competitions do need one)
     zenodo:<record id>     every file in an open Zenodo record
     hf:owner/name          tabular/archive files in a public Hugging Face dataset repo
+    sec-facts:<CIK>        every XBRL financial fact a company filed with the SEC (JSON)
+    sec-filings:<CIK>      the company's SEC filing history (JSON)
+    wiki-pageviews:<Title> monthly English Wikipedia pageviews since 2015-07 (JSON)
+    cfpb:<EXACT NAME>      US consumer complaints for one company, one file per month
+                           since --since (default: two years back). Use the exact
+                           name company_lookup.py reports.
 
 Safety behaviour:
   * refuses files over --max-mb (default 300) unless you raise the limit
@@ -41,6 +47,7 @@ import re
 import shutil
 import sys
 import tarfile
+import time
 import urllib.error
 import urllib.parse
 import urllib.request
@@ -53,6 +60,10 @@ CHUNK = 1024 * 256
 PROVENANCE_CHOICES = ["actual", "anonymized", "simulated", "synthetic", "unverified"]
 HF_DATA_EXT = (".csv", ".tsv", ".json", ".jsonl", ".parquet", ".xlsx", ".xls", ".zip", ".gz", ".txt")
 ARCHIVE_DEPTH = 3
+CFPB_API = "https://www.consumerfinance.gov/data-research/consumer-complaints/search/api/v1/"
+CFPB_PAGE = 10000  # the API's largest page; a month that hits it is truncated and reported
+SLOW_HOSTS = ("consumerfinance.gov", "sec.gov", "api.fda.gov")  # be polite: pause between requests
+CONTACT_UA = None  # set from --contact; only sent to sec.gov
 
 
 class FetchError(Exception):
@@ -75,8 +86,41 @@ def get_json(url: str):
         return json.loads(resp.read().decode("utf-8", "replace"))
 
 
-def expand_source(src: str) -> list[tuple[str, str | None]]:
+def _months(since, until):
+    cur = since.replace(day=1)
+    while cur <= until:
+        nxt = (cur.replace(day=28) + dt.timedelta(days=4)).replace(day=1)
+        yield cur, min(nxt - dt.timedelta(days=1), until)
+        cur = nxt
+
+
+def expand_source(src: str, since=None) -> list[tuple[str, str | None]]:
     """Turn a shorthand reference into a list of (url, suggested_filename)."""
+    if src.startswith(("sec-facts:", "sec-filings:")):
+        kind, cik = src.split(":", 1)
+        cik = re.sub(r"\D", "", cik)
+        if not cik:
+            raise FetchError(f"{kind} needs a numeric CIK, got {src!r}")
+        cik10 = f"{int(cik):010d}"
+        if kind == "sec-facts":
+            return [(f"https://data.sec.gov/api/xbrl/companyfacts/CIK{cik10}.json", f"sec_companyfacts_{cik10}.json")]
+        return [(f"https://data.sec.gov/submissions/CIK{cik10}.json", f"sec_submissions_{cik10}.json")]
+    if src.startswith("wiki-pageviews:"):
+        title = src.split(":", 1)[1].strip().replace(" ", "_")
+        end = dt.date.today().replace(day=1) - dt.timedelta(days=1)
+        url = ("https://wikimedia.org/api/rest_v1/metrics/pageviews/per-article/en.wikipedia/all-access/user/"
+               f"{urllib.parse.quote(title, safe='')}/monthly/20150701/{end:%Y%m%d}")
+        return [(url, f"wikipedia_pageviews_{safe_name(title)}.json")]
+    if src.startswith("cfpb:"):
+        company = src.split(":", 1)[1].strip()
+        start = since or (dt.date.today() - dt.timedelta(days=730))
+        out = []
+        for lo, hi in _months(start, dt.date.today()):
+            q = urllib.parse.urlencode({"company": company, "date_received_min": lo.isoformat(),
+                                        "date_received_max": hi.isoformat(), "size": CFPB_PAGE,
+                                        "no_aggs": "true", "sort": "created_date_desc"})
+            out.append((CFPB_API + "?" + q, f"cfpb_{lo:%Y_%m}.json"))
+        return out
     if src.startswith("kaggle:"):
         ref = src.split(":", 1)[1].strip().strip("/")
         if ref.count("/") != 1:
@@ -115,7 +159,11 @@ def looks_like_html(head: bytes) -> bool:
 
 
 def download(url: str, dest_dir: Path, suggested: str | None, max_bytes: int, allow_html: bool) -> dict:
-    req = urllib.request.Request(url, headers={"User-Agent": USER_AGENT, "Accept": "*/*"})
+    host = urllib.parse.urlparse(url).netloc
+    ua = f"dataset-research {CONTACT_UA}" if CONTACT_UA and host.endswith("sec.gov") else USER_AGENT
+    if any(host.endswith(h) for h in SLOW_HOSTS):
+        time.sleep(1.0)
+    req = urllib.request.Request(url, headers={"User-Agent": ua, "Accept": "*/*"})
     try:
         resp = urllib.request.urlopen(req, timeout=TIMEOUT)
     except urllib.error.HTTPError as exc:
@@ -313,6 +361,8 @@ def main() -> int:
     ap.add_argument("--max-mb", type=float, default=300, help="Refuse larger downloads (default 300).")
     ap.add_argument("--no-extract", action="store_true", help="Keep archives as they are.")
     ap.add_argument("--allow-html", action="store_true", help="Keep HTML responses (only when a web page IS the data).")
+    ap.add_argument("--since", help="Start date YYYY-MM-DD for cfpb: sources (default two years back).")
+    ap.add_argument("--contact", help="Contact address sent to sec.gov in the user-agent, ONLY if the user gave one for this.")
     args = ap.parse_args()
 
     try:
@@ -330,19 +380,47 @@ def main() -> int:
     manifest_path = data_dir / "manifest.json"
     manifest = load_manifest(manifest_path)
     max_bytes = int(args.max_mb * 1024 * 1024)
+    global CONTACT_UA
+    CONTACT_UA = args.contact
+    since = None
+    if args.since:
+        try:
+            since = dt.date.fromisoformat(args.since)
+        except ValueError:
+            print("--since must look like 2024-01-01", file=sys.stderr)
+            return 2
+    total_bytes = 0
 
     downloads, failures = [], []
     for src in args.sources:
         try:
-            targets = expand_source(src)
+            targets = expand_source(src, since)
         except Exception as exc:
             failures.append({"source": src, "error": str(exc), "attempted_at_utc": now_utc(), "dataset_id": ds_id})
             print(f"FAILED  {src}\n        {exc}")
             continue
         for url, suggested in targets:
+            if total_bytes > max_bytes:
+                failures.append({"source": src, "url": url, "error": "skipped: total download budget (--max-mb) used up",
+                                 "attempted_at_utc": now_utc(), "dataset_id": ds_id})
+                print(f"SKIPPED {url}\n        total download budget used up")
+                continue
             try:
                 rec = download(url, dest, suggested, max_bytes, args.allow_html)
                 rec["source_ref"] = src
+                total_bytes += rec["bytes"]
+                if src.startswith("cfpb:"):
+                    try:
+                        body = json.loads((dest / rec["saved_as"]).read_text(encoding="utf-8"))
+                        got = len((body.get("hits") or {}).get("hits") or [])
+                        total = ((body.get("hits") or {}).get("total") or {}).get("value", got)
+                        rec["records"] = got
+                        if got < total:
+                            rec["truncated"] = (f"{got} of {total} complaints this month (API page limit); "
+                                                "split the month or use the CFPB bulk download")
+                            print(f"        WARNING {rec['truncated']}")
+                    except Exception:
+                        pass
                 downloads.append(rec)
                 print(f"OK      {rec['saved_as']}  {rec['bytes']:,} bytes  sha256={rec['sha256'][:16]}…")
             except Exception as exc:

@@ -158,6 +158,9 @@ relational model, write real joins and derive their own measures.
 
 ## 6. Company reports as data
 
+For the full single-company method (layers, country sources, extracting KPI
+tables from reports, peers) see `company-data.md`. The essentials:
+
 When the user prefers a company, or the industry has no open row-level data,
 public filings are real, citable evidence:
 

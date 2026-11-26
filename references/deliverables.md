@@ -12,6 +12,7 @@ look up later. Every fact about a dataset carries its evidence label:
 ## Contents
 
 - README.md
+- 00_company_selection.md
 - 01_business_problem.md
 - 02_data_collection_report.md
 - 03_data_model.md and schema.sql
@@ -54,6 +55,30 @@ The first five things the student should do, in order.
 ## Things you must check yourself
 Anything left [UNVERIFIED], anything not collected, any assumption that needs the supervisor's agreement.
 ```
+
+---
+
+## 00_company_selection.md
+
+Why this company, so a supervisor can see the choice was made on evidence.
+
+1. **Topic and approach** - the topic, and the approach chosen from
+   `approaches.md` (or the combination), with one line on why.
+2. **Candidates** - every company considered:
+
+   | Company | Country, sector | Listed | Topic KPI disclosed? | Record-level public data | Peers comparable | Time depth | Footprint score | Main limitation |
+   |---|---|---|---|---|---|---|---:|---|
+
+   Footprint figures come from `data/company_scan.md` (measured) plus what web
+   search found (with links).
+3. **Choice** - the company selected, who chose it (the user, or the default
+   because the user asked you to decide), and the reasons.
+4. **Details agreed** - problem angle, period, scope within the company, peers,
+   tools, duration. Mark which were defaults.
+5. **What public data can and cannot show about this company** - two short lists.
+6. **Company profile** - legal name, country, HQ, industry, segments, size,
+   listings, identifiers (Wikidata, LEI, CIK or exchange codes), website, with
+   sources.
 
 ---
 
@@ -101,14 +126,17 @@ Anything left [UNVERIFIED], anything not collected, any assumption that needs th
 
 The most important document. A reader must be able to repeat the collection.
 
-1. **How the search was done** - date, catalogs and portals searched, the
+1. **Collection plan** - the matrix from Step 4: each source, its layer, and
+   what it contributes to problem identification, cause, prediction and solution,
+   with grain and period. Mark sources planned but not obtained.
+2. **How the search was done** - date, catalogs and portals searched, the
    search phrases, and sources that failed or could not be reached.
-2. **Candidates considered** - every shortlisted dataset, including rejected ones:
+3. **Candidates considered** - every shortlisted dataset, including rejected ones:
 
    | Dataset | Publisher | Link | Class | Rows / period | Decision | Reason |
    |---|---|---|---|---|---|---|
 
-3. **Selected datasets** - one card each, all eleven points, each with its
+4. **Selected datasets** - one card each, all eleven points, each with its
    evidence label:
 
    | # | Item | Detail |
@@ -127,15 +155,19 @@ The most important document. A reader must be able to repeat the collection.
 
    Add the licence or terms, and how the publisher asks to be cited.
 
-4. **Coverage of the four stages** - one table: datasets down the side, the
+5. **Coverage of the four stages** - one table: datasets down the side, the
    four stages across, each cell saying what it supports and what is missing.
-5. **Collection log** - copied from `data/manifest.json`: file, size, SHA-256
+6. **Collection log** - copied from `data/manifest.json`: file, size, SHA-256
    (first 12 characters), retrieved at, requested link.
-6. **Not collected** - each failed or login-gated dataset, why, and the manual
+7. **Not collected** - each failed or login-gated dataset, why, and the manual
    steps to obtain it.
-7. **Licence and ethics** - terms, personal data present or not, anything the
+8. **Licence and ethics** - terms, personal data present or not, anything the
    student must not redistribute.
-8. **How to reproduce** - the exact commands that were run.
+9. **Structured tables** - each table in `data/processed/`: what one row is,
+   rows `[FILE]`, keys (company, period, record id), and the raw files it came
+   from. Point to `data_dictionary.csv`.
+10. **How to reproduce** - the exact commands that were run, and the scripts in
+   `collect/`.
 
 ---
 

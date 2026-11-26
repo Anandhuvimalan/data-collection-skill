@@ -222,6 +222,24 @@ with expected impact, and the measurement plan.
 
 ---
 
+## 5b. When the data is company × period, not records
+
+Single-company projects often have one row per company per year or quarter,
+plus peers. The four stages still work, with different methods:
+
+| Stage | Methods for company-period data | Watch out for |
+|---|---|---|
+| Descriptive | KPI trend, growth rates, indexed comparison with peers (base year = 100), peer median and range | Definition changes between years; restated figures |
+| Diagnostic | Gap to peer median; driver charts (KPI against staff cost, price, demand); correlation across the panel; panel regression with company and year effects when there are enough points; event comparison around a known change | Ten annual points cannot support many variables; shared trends make everything correlate, so compare changes, not levels |
+| Predictive | Naive and seasonal-naive baselines, exponential smoothing, ARIMA on quarterly or monthly series; regression on drivers across the panel | Very short series: present forecasts as indicative ranges, backtest on the last periods |
+| Prescriptive | Target setting against peers; scenario model linking the lever to the KPI to money (for example attrition points to replacement cost to margin) with sourced assumptions | A benchmark is a target, not a cause |
+
+Record-level public data about the company (complaints, recalls, flights,
+reviews) can be aggregated to the same period and joined on company and period,
+which often supplies the drivers the diagnostic stage needs.
+
+---
+
 ## 6. Status labels and honest gaps
 
 Every planned item gets a status so the student knows what is real:

@@ -1,0 +1,4 @@
+schema_version: "1.1"
+name: company-choice-checkpoint
+expected_outcome: |
+  The run researches before asking: it shortlists four to six real US banks, measures each one's public data footprint (for example CFPB complaint counts and SEC filings), presents them in a comparison with the problem angle and main limitation of each, recommends one with a reason, offers alternative approaches, and then stops to let the user choose instead of collecting data for a company the user did not pick.
